@@ -1,5 +1,5 @@
-import './App.css';
-import { useEffect, useRef } from "react";
+﻿import './App.css';
+import { useEffect, useRef, useState } from "react";
 import { StrudelMirror } from '@strudel/codemirror';
 import { evalScope } from '@strudel/core';
 import { drawPianoroll } from '@strudel/draw';
@@ -10,65 +10,98 @@ import { registerSoundfonts } from '@strudel/soundfonts';
 import { stranger_tune } from './tunes';
 import console_monkey_patch, { getD3Data } from './console-monkey-patch';
 
+import Preprocessor_Editor from './components/Preprocessor_Editor';
+import Control_Panel from './components/Control_Panel';
+import Graph from './components/Graph';
+
 let globalEditor = null;
 
-const handleD3Data = (event) => {
-    console.log(event.detail);
-};
+//const handleD3Data = (event) => {
+//    console.log(event.detail);
+//};
 
-export function SetupButtons() {
+//export function SetupButtons() {
 
-    document.getElementById('play').addEventListener('click', () => globalEditor.evaluate());
-    document.getElementById('stop').addEventListener('click', () => globalEditor.stop());
-    document.getElementById('process').addEventListener('click', () => {
-        Proc()
-    }
-    )
-    document.getElementById('process_play').addEventListener('click', () => {
-        if (globalEditor != null) {
-            Proc()
-            globalEditor.evaluate()
-        }
-    }
-    )
+//    document.getElementById('play').addEventListener('click', () => globalEditor.evaluate());
+//    document.getElementById('stop').addEventListener('click', () => globalEditor.stop());
+//    document.getElementById('process').addEventListener('click', () => {
+//        Proc()
+//    }
+//    )
+//    document.getElementById('process_play').addEventListener('click', () => {
+//        if (globalEditor != null) {
+//            Proc()
+//            globalEditor.evaluate()
+//        }
+//    }
+//    )
+//}
+
+
+
+//export function ProcAndPlay() {
+//    if (globalEditor != null && globalEditor.repl.state.started == true) {
+//        console.log(globalEditor)
+//        Proc()
+//        globalEditor.evaluate();
+//    }
+//}
+
+//export function Proc() {
+
+//    let proc_text = document.getElementById('proc').value
+//    let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
+//    ProcessText(proc_text);
+//    globalEditor.setCode(proc_text_replaced)
+//}
+
+//export function ProcessText(match, ...args) {
+
+//    let replace = ""
+//    if (document.getElementById('flexRadioDefault2').checked) {
+//        replace = "_"
+//    }
+
+//    return replace
+//}
+
+export function processAndLoad(txt, p1On) {
+    const replaced = txt.replaceAll("<p1_Radio>", p1On ? "" : "_");
+    if (globalEditor) globalEditor.setCode(replaced);
 }
 
 
+export async function resumeAudio() {
+    initAudioOnFirstClick();
+    const ac = getAudioContext();
+    if (ac && ac.state !== "running") await ac.resume();
+}
 
-export function ProcAndPlay() {
-    if (globalEditor != null && globalEditor.repl.state.started == true) {
-        console.log(globalEditor)
-        Proc()
-        globalEditor.evaluate();
+
+export async function stopAudio() {
+    try {
+        if (globalEditor?.stop) globalEditor.stop();
+        if (globalEditor?.repl?.stop) globalEditor.repl.stop();
+        if (globalEditor?.repl?.scheduler?.stop) globalEditor.repl.scheduler.stop();
+        const ac = getAudioContext();
+        if (ac && ac.state !== "suspended") await ac.suspend(); // hard stop
+    } catch (e) {
+        console.error(e);
     }
 }
 
-export function Proc() {
-
-    let proc_text = document.getElementById('proc').value
-    let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
-    ProcessText(proc_text);
-    globalEditor.setCode(proc_text_replaced)
-}
-
-export function ProcessText(match, ...args) {
-
-    let replace = ""
-    if (document.getElementById('flexRadioDefault2').checked) {
-        replace = "_"
-    }
-
-    return replace
-}
 
 export default function StrudelDemo() {
 
-const hasRun = useRef(false);
+    const hasRun = useRef(false);
+
+    const [text, setText] = useState(stranger_tune);
+    const [p1On, setP1On] = useState(true);
 
 useEffect(() => {
 
-    if (!hasRun.current) {
-        document.addEventListener("d3Data", handleD3Data);
+    if (!hasRun.current) return;
+        //document.addEventListener("d3Data", handleD3Data);
         console_monkey_patch();
         hasRun.current = true;
         //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
@@ -98,60 +131,34 @@ useEffect(() => {
                 },
             });
             
-        document.getElementById('proc').value = stranger_tune
-        SetupButtons()
-        Proc()
-    }
+    processAndLoad(stranger_tune, p1On);
 
-}, []);
+}, [p1On]);
 
 
 return (
-    <div>
-        <h2>Strudel Demo</h2>
-        <main>
+    <div className="dark-page">
+        <header className="dark-header">
+            <h1>🎧 Strudel Preprocessor Studio</h1>
+        </header>
 
-            <div className="container-fluid">
-                <div className="row">
-                    <div className="col-md-8" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
-                        <label htmlFor="exampleFormControlTextarea1" className="form-label">Text to preprocess:</label>
-                        <textarea className="form-control" rows="15" id="proc" ></textarea>
-                    </div>
-                    <div className="col-md-4">
+        <main className="dark-grid">
+            <section className="dark-card editor-card">
+                <h2 className="title accent-blue">Preprocessor Editor</h2>
+                <Preprocessor_Editor value={text} onChange={setText} />
+            </section>
 
-                        <nav>
-                            <button id="process" className="btn btn-outline-primary">Preprocess</button>
-                            <button id="process_play" className="btn btn-outline-primary">Proc & Play</button>
-                            <br />
-                            <button id="play" className="btn btn-outline-primary">Play</button>
-                            <button id="stop" className="btn btn-outline-primary">Stop</button>
-                        </nav>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-8" style={{ maxHeight: '50vh', overflowY: 'auto' }}>
-                        <div id="editor" />
-                        <div id="output" />
-                    </div>
-                    <div className="col-md-4">
-                        <div className="form-check">
-                            <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" onChange={ProcAndPlay} defaultChecked />
-                            <label className="form-check-label" htmlFor="flexRadioDefault1">
-                                p1: ON
-                            </label>
-                        </div>
-                        <div className="form-check">
-                            <input className="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onChange={ProcAndPlay} />
-                            <label className="form-check-label" htmlFor="flexRadioDefault2">
-                                p1: HUSH
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <canvas id="roll"></canvas>
-        </main >
-    </div >
+            <section className="dark-card output-card">
+                <h2 className="title accent-purple">Strudel REPL Output</h2>
+                <div id="output-panel" className="output-live" />
+            </section>
+
+
+        </main>
+
+        <canvas id="roll" width="600" height="120" style={{ display: "none" }} />
+    </div>
+
 );
 
 
