@@ -65,19 +65,20 @@ let globalEditor = null;
 //    return replace
 //}
 
+// Export function to process and load text into the Strudel editor
 export function processAndLoad(txt, p1On) {
     const replaced = txt.replaceAll("<p1_Radio>", p1On ? "" : "_");
     if (globalEditor) globalEditor.setCode(replaced);
 }
 
-
+// Export function to resume audio playback
 export async function resumeAudio() {
     initAudioOnFirstClick();
     const ac = getAudioContext();
     if (ac && ac.state !== "running") await ac.resume();
 }
 
-
+// Export function to stop the audio and editor
 export async function stopAudio() {
     try {
         if (globalEditor?.stop) globalEditor.stop();
@@ -90,6 +91,38 @@ export async function stopAudio() {
     }
 }
 
+// apply settings from imported JSON
+export function applySettingsObject(obj, setTempo, setVolume, setReverb, setP1On, setText, setStatus) {
+    setTempo(Number(obj.tempo ?? 120));
+    setVolume(Number(obj.volume ?? 50));
+    setReverb(Number(obj.reverb ?? 40));
+    setP1On(Boolean(obj.p1On));
+    if (typeof obj.text === "string") setText(obj.text);
+    processAndLoad(obj.text || "", obj.p1On);
+}
+
+// download settings as JSON file
+export function downloadSettings(tempo, volume, reverb, p1On, text, setStatus) {
+    const data = { tempo, volume, reverb, p1On, text };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "strudel-settings.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    setStatus("Settings downloaded");
+}
+
+// import settings from JSON file
+export function importSettingsFromFile(jsonString, setTempo, setVolume, setReverb, setP1On, setText, setStatus) {
+    try {
+        const obj = JSON.parse(jsonString);
+        applySettingsObject(obj, setTempo, setVolume, setReverb, setP1On, setText, setStatus);
+        setStatus("Settings imported from file");
+    } catch {
+        setStatus("Invalid settings file");
+    }
+}
 
 export default function StrudelDemo() {
 
@@ -97,10 +130,14 @@ export default function StrudelDemo() {
 
     const [text, setText] = useState(stranger_tune);
     const [p1On, setP1On] = useState(true);
+    const [tempo, setTempo] = useState(120);
+    const [volume, setVolume] = useState(50);
+    const [reverb, setReverb] = useState(40);
+    const [status, setStatus] = useState("");
 
 useEffect(() => {
 
-    if (!hasRun.current) return;
+    if (hasRun.current) return;
         //document.addEventListener("d3Data", handleD3Data);
         console_monkey_patch();
         hasRun.current = true;
@@ -115,7 +152,7 @@ useEffect(() => {
                 defaultOutput: webaudioOutput,
                 getTime: () => getAudioContext().currentTime,
                 transpiler,
-                root: document.getElementById('editor'),
+                root: document.getElementById('output-panel'),
                 drawTime,
                 onDraw: (haps, time) => drawPianoroll({ haps, time, ctx: drawContext, drawTime, fold: 0 }),
                 prebake: async () => {
@@ -153,7 +190,27 @@ return (
                 <div id="output-panel" className="output-live" />
             </section>
 
+            <section className="dark-card control-card">
+                <h2 className="title accent-cyan">Control Panel</h2>
+                <Control_Panel
+                    p1On={p1On} setP1On={setP1On}
+                    tempo={tempo} setTempo={setTempo}
+                    volume={volume} setVolume={setVolume}
+                    reverb={reverb} setReverb={setReverb}
+                    preprocess={() => processAndLoad(text, p1On)}
+                    preprocessAndPlay={async () => { await resumeAudio(); processAndLoad(text, p1On); globalEditor?.evaluate(); setStatus("Playing (proc)"); }}
+                    play={async () => { await resumeAudio(); globalEditor?.evaluate(); setStatus("Playing"); }}
+                    stop={stopAudio}
+                    downloadSettings={() => downloadSettings(tempo, volume, reverb, p1On, text, setStatus)}
+                    importSettingsFromFile={(fileContent) => importSettingsFromFile(fileContent, setTempo, setVolume, setReverb, setP1On, setText, setStatus)}
+                    status={status}
+                />
+            </section>
 
+            <section className="dark-card graph-card">
+                <h2 className="title accent-green">D3 Graph</h2>
+                <Graph />
+            </section>
         </main>
 
         <canvas id="roll" width="600" height="120" style={{ display: "none" }} />

@@ -10,7 +10,7 @@
     --accent-red: #f44336;
 }
 
-
+/* Dark page base */
 .dark-page {
     background: radial-gradient(circle at top left, #0b0f18 0%, #06080d 100%);
     color: var(--text);
@@ -21,7 +21,7 @@
     font-family: "Inter", "Segoe UI", sans-serif;
 }
 
-
+/* Header */
 .dark-header {
     text-align: center;
     background: linear-gradient(90deg, #2196f3, #b85cff);
@@ -32,7 +32,7 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-
+/* Grid */
 .dark-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -43,7 +43,7 @@
     box-sizing: border-box;
 }
 
-
+/* Card Containers */
 .dark-card {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -53,4 +53,132 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+.accent-blue {
+    color: var(--accent-blue);
+}
+
+.accent-purple {
+    color: var(--accent-purple);
+}
+
+.accent-cyan {
+    color: var(--accent-cyan);
+}
+
+.accent-green {
+    color: var(--accent-green);
+}
+
+/* Editor */
+.editor-card textarea {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: #0e1218;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 12px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    resize: none;
+    overflow-y: auto;
+}
+
+/* Output */
+.output-live {
+    flex: 1;
+    background: #1a1f2a;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    color: #b3f0ff;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Control Panel */
+.control-section {
+    border-top: 1px solid #2b313c;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+    .control-section:first-of-type {
+        border-top: none;
+    }
+
+.control-card h3 {
+    font-size: 14px;
+    margin: 4px 0 8px;
+    color: var(--accent-blue);
+}
+
+.radio-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.tempo-group input {
+    width: 70px;
+    text-align: center;
+    background: #0d1118;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 4px;
+}
+
+/* Buttons */
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .btn:hover {
+        filter: brightness(1.25);
+    }
+
+    .btn.blue {
+        background: var(--accent-blue);
+    }
+
+    .btn.purple {
+        background: var(--accent-purple);
+    }
+
+    .btn.green {
+        background: var(--accent-green);
+    }
+
+    .btn.red {
+        background: var(--accent-red);
+    }
+
+/* Sliders */
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent-blue);
 }
