@@ -1,4 +1,4 @@
-﻿import { useRef } from "react";
+﻿import { useRef, useState } from "react";
 
 export default function ControlPanel({
     p1On, setP1On,
@@ -11,8 +11,17 @@ export default function ControlPanel({
 }) {
     const fileRef = useRef(null);
 
+    // Effects state
+    const [effects, setEffects] = useState({
+        chorus: false,
+        delay: false,
+        distortion: false
+    });
+
+    // Function to open file chooser dialog
     const onChooseFile = () => fileRef.current?.click();
 
+    // Triggered when user selects a JSON file
     const onFileSelected = (e) => {
         const f = e.target.files?.[0];
         if (!f) return;
@@ -22,9 +31,15 @@ export default function ControlPanel({
         e.target.value = ""; 
     };
 
+    // Toggle effect on/off handler
+    const toggleEffect = (name) => {
+        setEffects(prev => ({ ...prev, [name]: !prev[name] }));
+    };
+
     return (
         <div className="control-container">
-            
+
+            {/*playback controls*/}
             <div className="control-section">
                 <h3>Playback</h3>
                 <div className="radio-group">
@@ -54,7 +69,7 @@ export default function ControlPanel({
                 </div>
             </div>
 
-            
+            {/*Tempo Control*/}
             <div className="control-section">
                 <h3>Tempo</h3>
                 <div className="tempo-group">
@@ -66,7 +81,7 @@ export default function ControlPanel({
                 </div>
             </div>
 
-            
+            {/*Mixing Controls*/}
             <div className="control-section">
                 <h3>Mixing</h3>
                 <label>Volume: {volume}%</label>
@@ -83,7 +98,51 @@ export default function ControlPanel({
                 />
             </div>
 
-            
+            {/*Effects Controls*/}
+            <div className="mb-4">
+                <h5 className="text-info">Effects</h5>
+                <div className="form-check">
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={effects.chorus}
+                        onChange={() => toggleEffect("chorus")}
+                        id="chorus"
+                    />
+                    <label className="form-check-label" htmlFor="chorus">
+                        Chorus
+                    </label>
+                </div>
+
+                <div className="form-check">
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={effects.delay}
+                        onChange={() => toggleEffect("delay")}
+                        id="delay"
+                    />
+                    <label className="form-check-label" htmlFor="delay">
+                        Delay
+                    </label>
+                </div>
+
+                <div className="form-check">
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={effects.distortion}
+                        onChange={() => toggleEffect("distortion")}
+                        id="distortion"
+                    />
+                    <label className="form-check-label" htmlFor="distortion">
+                        Distortion
+                    </label>
+                </div>
+            </div>
+
+
+            {/*settings(Import/Export) controls*/}
             <div className="control-section">
                 <h3>Settings</h3>
                 <div className="button-row">

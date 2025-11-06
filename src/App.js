@@ -67,24 +67,25 @@ let globalEditor = null;
 
 // Export function to process and load text into the Strudel editor
 export function processAndLoad(txt, p1On) {
-    const replaced = txt.replaceAll("<p1_Radio>", p1On ? "" : "_");
-    if (globalEditor) globalEditor.setCode(replaced);
+    // Replace every <p1_Radio> tag with an underscore or nothing, depending on whether p1On is false or true.
+    const replaced = txt.replaceAll("<p1_Radio>", p1On ? "" : "_"); 
+    if (globalEditor) globalEditor.setCode(replaced); // update its code with the processed text.
 }
 
 // Export function to resume audio playback
 export async function resumeAudio() {
-    initAudioOnFirstClick();
-    const ac = getAudioContext();
-    if (ac && ac.state !== "running") await ac.resume();
+    initAudioOnFirstClick();  // ensure audio context is initialized
+    const ac = getAudioContext();  // get the audio context
+    if (ac && ac.state !== "running") await ac.resume();  // resume if not already running
 }
 
 // Export function to stop the audio and editor
 export async function stopAudio() {
     try {
-        if (globalEditor?.stop) globalEditor.stop();
-        if (globalEditor?.repl?.stop) globalEditor.repl.stop();
+        if (globalEditor?.stop) globalEditor.stop();  // stop the editor if it has a stop method
+        if (globalEditor?.repl?.stop) globalEditor.repl.stop(); 
         if (globalEditor?.repl?.scheduler?.stop) globalEditor.repl.scheduler.stop();
-        const ac = getAudioContext();
+        const ac = getAudioContext();  // Get the Audio context and suspend it to stop all sounds completely.
         if (ac && ac.state !== "suspended") await ac.suspend(); // hard stop
     } catch (e) {
         console.error(e);
@@ -93,34 +94,37 @@ export async function stopAudio() {
 
 // apply settings from imported JSON
 export function applySettingsObject(obj, setTempo, setVolume, setReverb, setP1On, setText, setStatus) {
+    // set each setting with a fallback default value
     setTempo(Number(obj.tempo ?? 120));
     setVolume(Number(obj.volume ?? 50));
     setReverb(Number(obj.reverb ?? 40));
     setP1On(Boolean(obj.p1On));
-    if (typeof obj.text === "string") setText(obj.text);
-    processAndLoad(obj.text || "", obj.p1On);
+    if (typeof obj.text === "string") setText(obj.text); // only set text if it's a string
+    processAndLoad(obj.text || "", obj.p1On); // process and load the text into the editor
 }
 
 // download settings as JSON file
 export function downloadSettings(tempo, volume, reverb, p1On, text, setStatus) {
     const data = { tempo, volume, reverb, p1On, text };
+    // Convert the object into a JSON blob for download.
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "strudel-settings.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    setStatus("Settings downloaded");
+    const a = document.createElement("a"); // create a temporary anchor element
+    a.href = URL.createObjectURL(blob);    // create a URL for the blob
+    a.download = "strudel-settings.json";  // set the download filename
+    a.click();                          // trigger the download
+    URL.revokeObjectURL(a.href);        // clean up the URL object
+    setStatus("Settings downloaded");   // update status
 }
 
 // import settings from JSON file
 export function importSettingsFromFile(jsonString, setTempo, setVolume, setReverb, setP1On, setText, setStatus) {
     try {
+        // Parse the JSON string into an object
         const obj = JSON.parse(jsonString);
         applySettingsObject(obj, setTempo, setVolume, setReverb, setP1On, setText, setStatus);
-        setStatus("Settings imported from file");
+        setStatus("Settings imported from file"); // update status
     } catch {
-        setStatus("Invalid settings file");
+        setStatus("Invalid settings file");  // error handling
     }
 }
 
@@ -128,6 +132,7 @@ export default function StrudelDemo() {
 
     const hasRun = useRef(false);
 
+    // App states: text, playback controls, and mixer settings
     const [text, setText] = useState(stranger_tune);
     const [p1On, setP1On] = useState(true);
     const [tempo, setTempo] = useState(120);
@@ -137,7 +142,7 @@ export default function StrudelDemo() {
 
 useEffect(() => {
 
-    if (hasRun.current) return;
+    if (hasRun.current) return; // prevent re-running setup
         //document.addEventListener("d3Data", handleD3Data);
         console_monkey_patch();
         hasRun.current = true;
@@ -152,7 +157,7 @@ useEffect(() => {
                 defaultOutput: webaudioOutput,
                 getTime: () => getAudioContext().currentTime,
                 transpiler,
-                root: document.getElementById('output-panel'),
+                root: document.getElementById('output-panel'), // target output area
                 drawTime,
                 onDraw: (haps, time) => drawPianoroll({ haps, time, ctx: drawContext, drawTime, fold: 0 }),
                 prebake: async () => {
@@ -168,7 +173,7 @@ useEffect(() => {
                 },
             });
             
-    processAndLoad(stranger_tune, p1On);
+    processAndLoad(stranger_tune, p1On); // Load initial Strudel code into the editor
 
 }, [p1On]);
 
@@ -193,11 +198,11 @@ return (
             <section className="dark-card control-card">
                 <h2 className="title accent-cyan">Control Panel</h2>
                 <Control_Panel
-                    p1On={p1On} setP1On={setP1On}
+                    p1On={p1On} setP1On={setP1On}  
                     tempo={tempo} setTempo={setTempo}
                     volume={volume} setVolume={setVolume}
                     reverb={reverb} setReverb={setReverb}
-                    preprocess={() => processAndLoad(text, p1On)}
+                    preprocess={() => processAndLoad(text, p1On)}  
                     preprocessAndPlay={async () => { await resumeAudio(); processAndLoad(text, p1On); globalEditor?.evaluate(); setStatus("Playing (proc)"); }}
                     play={async () => { await resumeAudio(); globalEditor?.evaluate(); setStatus("Playing"); }}
                     stop={stopAudio}
