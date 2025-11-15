@@ -1,20 +1,24 @@
 ﻿import './App.css';
 import { useEffect, useRef, useState } from "react";
-import { StrudelMirror } from '@strudel/codemirror';
-import { evalScope } from '@strudel/core';
-import { drawPianoroll } from '@strudel/draw';
-import { initAudioOnFirstClick } from '@strudel/webaudio';
-import { transpiler } from '@strudel/transpiler';
-import { getAudioContext, webaudioOutput, registerSynthSounds } from '@strudel/webaudio';
-import { registerSoundfonts } from '@strudel/soundfonts';
+
 import { stranger_tune } from './tunes';
 import console_monkey_patch, { getD3Data } from './console-monkey-patch';
+
+import {
+    processAndLoad,
+    applySettingsObject,
+    downloadSettings,
+    importSettingsFromFile
+} from "./components/Settings";
+
+import { resumeAudio, stopAudio } from "./components/AudioService";
+import { initEditor, globalEditor } from "./components/StrudelEngine";
 
 import Preprocessor_Editor from './components/Preprocessor_Editor';
 import Control_Panel from './components/Control_Panel';
 import Graph from './components/Graph';
 
-let globalEditor = null;
+
 
 //const handleD3Data = (event) => {
 //    console.log(event.detail);
@@ -66,67 +70,6 @@ let globalEditor = null;
 //}
 
 // Export function to process and load text into the Strudel editor
-export function processAndLoad(txt, p1On) {
-    // Replace every <p1_Radio> tag with an underscore or nothing, depending on whether p1On is false or true.
-    const replaced = txt.replaceAll("<p1_Radio>", p1On ? "" : "_"); 
-    if (globalEditor) globalEditor.setCode(replaced); // update its code with the processed text.
-}
-
-// Export function to resume audio playback
-export async function resumeAudio() {
-    initAudioOnFirstClick();  // ensure audio context is initialized
-    const ac = getAudioContext();  // get the audio context
-    if (ac && ac.state !== "running") await ac.resume();  // resume if not already running
-}
-
-// Export function to stop the audio and editor
-export async function stopAudio() {
-    try {
-        if (globalEditor?.stop) globalEditor.stop();  // stop the editor if it has a stop method
-        if (globalEditor?.repl?.stop) globalEditor.repl.stop(); 
-        if (globalEditor?.repl?.scheduler?.stop) globalEditor.repl.scheduler.stop();
-        const ac = getAudioContext();  // Get the Audio context and suspend it to stop all sounds completely.
-        if (ac && ac.state !== "suspended") await ac.suspend(); // hard stop
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-// apply settings from imported JSON
-export function applySettingsObject(obj, setTempo, setVolume, setReverb, setP1On, setText, setStatus) {
-    // set each setting with a fallback default value
-    setTempo(Number(obj.tempo ?? 120));
-    setVolume(Number(obj.volume ?? 50));
-    setReverb(Number(obj.reverb ?? 40));
-    setP1On(Boolean(obj.p1On));
-    if (typeof obj.text === "string") setText(obj.text); // only set text if it's a string
-    processAndLoad(obj.text || "", obj.p1On); // process and load the text into the editor
-}
-
-// download settings as JSON file
-export function downloadSettings(tempo, volume, reverb, p1On, text, setStatus) {
-    const data = { tempo, volume, reverb, p1On, text };
-    // Convert the object into a JSON blob for download.
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const a = document.createElement("a"); // create a temporary anchor element
-    a.href = URL.createObjectURL(blob);    // create a URL for the blob
-    a.download = "strudel-settings.json";  // set the download filename
-    a.click();                          // trigger the download
-    URL.revokeObjectURL(a.href);        // clean up the URL object
-    setStatus("Settings downloaded");   // update status
-}
-
-// import settings from JSON file
-export function importSettingsFromFile(jsonString, setTempo, setVolume, setReverb, setP1On, setText, setStatus) {
-    try {
-        // Parse the JSON string into an object
-        const obj = JSON.parse(jsonString);
-        applySettingsObject(obj, setTempo, setVolume, setReverb, setP1On, setText, setStatus);
-        setStatus("Settings imported from file"); // update status
-    } catch {
-        setStatus("Invalid settings file");  // error handling
-    }
-}
 
 export default function StrudelDemo() {
 
@@ -144,37 +87,14 @@ useEffect(() => {
 
     if (hasRun.current) return; // prevent re-running setup
         //document.addEventListener("d3Data", handleD3Data);
-        console_monkey_patch();
+    //console_monkey_patch();
+
+    initEditor(p1On, stranger_tune, processAndLoad, console_monkey_patch);
+
         hasRun.current = true;
         //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
             //init canvas
-            const canvas = document.getElementById('roll');
-            canvas.width = canvas.width * 2;
-            canvas.height = canvas.height * 2;
-            const drawContext = canvas.getContext('2d');
-            const drawTime = [-2, 2]; // time window of drawn haps
-            globalEditor = new StrudelMirror({
-                defaultOutput: webaudioOutput,
-                getTime: () => getAudioContext().currentTime,
-                transpiler,
-                root: document.getElementById('output-panel'), // target output area
-                drawTime,
-                onDraw: (haps, time) => drawPianoroll({ haps, time, ctx: drawContext, drawTime, fold: 0 }),
-                prebake: async () => {
-                    initAudioOnFirstClick(); // needed to make the browser happy (don't await this here..)
-                    const loadModules = evalScope(
-                        import('@strudel/core'),
-                        import('@strudel/draw'),
-                        import('@strudel/mini'),
-                        import('@strudel/tonal'),
-                        import('@strudel/webaudio'),
-                    );
-                    await Promise.all([loadModules, registerSynthSounds(), registerSoundfonts()]);
-                },
-            });
             
-    processAndLoad(stranger_tune, p1On); // Load initial Strudel code into the editor
-
 }, [p1On]);
 
 
