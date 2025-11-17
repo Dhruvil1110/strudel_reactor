@@ -62,10 +62,10 @@ export default function ControlPanel({
                 </div>
 
                 <div className="button-row">
-                    <button className="btn blue" onClick={preprocess}>Preprocess</button>
-                    <button className="btn purple" onClick={preprocessAndPlay}>Proc & Play</button>
-                    <button className="btn green" onClick={play}>▶ Play</button>
-                    <button className="btn red" onClick={stop}>⏹ Stop</button>
+                    <button id="preprocess" className="btn blue" onClick={preprocess}>Preprocess</button>
+                    <button id="process_play" className="btn purple" onClick={preprocessAndPlay}>Proc & Play</button>
+                    <button id="play" className="btn green" onClick={play}>▶ Play</button>
+                    <button id="stop" className="btn red" onClick={stop}>⏹ Stop</button>
                 </div>
             </div>
 
@@ -146,8 +146,8 @@ export default function ControlPanel({
             <div className="control-section">
                 <h3>Settings</h3>
                 <div className="button-row">
-                    <button className="btn green" onClick={downloadSettings}>Download JSON</button>
-                    <button className="btn" onClick={onChooseFile} style={{ background: "#6c63ff" }}>
+                    <button id="downloadJsonBtn" className="btn green" onClick={downloadSettings}>Download JSON</button>
+                    <button id="uploadJsonBtn" className="btn" onClick={onChooseFile} style={{ background: "#6c63ff" }}>
                         Upload JSON
                     </button>
                     <input

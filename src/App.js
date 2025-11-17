@@ -109,6 +109,14 @@ export default function StrudelDemo() {
     const [reverb, setReverb] = useState(40);
     const [status, setStatus] = useState("");
 
+    // NEW: Notification popup state
+    const [popupMsg, setPopupMsg] = useState("");
+
+    const showPopup = (msg) => {
+        setPopupMsg(msg);
+        setTimeout(() => setPopupMsg(""), 5000); // auto-hide
+    };
+
 useEffect(() => {
 
     if (hasRun.current) return; // prevent re-running setup
@@ -157,6 +165,56 @@ useEffect(() => {
     processAndLoad(stranger_tune, p1On);
 }, [p1On]);
 
+useEffect(() => {
+
+        const handleHotkeys = (e) => {
+
+            // Space = Play
+            if (e.key === "1") {
+                e.preventDefault();
+                document.getElementById("play")?.click();
+                showPopup("▶ Hotkey 1: Play");
+            }
+
+            // Shift + Space = Stop
+            if (e.key === "2") {
+                e.preventDefault();
+                document.getElementById("stop")?.click();
+                showPopup("⏹ Hotkey 2: Stopped Playback");
+            }
+
+            // Enter = Proc & Play
+            if (e.key === "3") {
+                e.preventDefault();
+                document.getElementById("process_play")?.click();
+                showPopup("⚙️ Hotkey 3: Proc & Play");
+            }
+
+            // P = Preprocess
+            if (e.key === "4") {
+                document.getElementById("preprocess")?.click();
+                showPopup("🔧 Hotkey 4: Preprocess");
+            }
+
+            // D = Download JSON
+            if (e.key.toLowerCase() === "d") {
+                e.preventDefault();
+                document.getElementById("downloadJsonBtn")?.click();
+                showPopup("💾 Download Settings");
+            }
+
+            // U = Load JSON
+            if (e.key.toLowerCase() === "u") {
+                e.preventDefault();
+                document.getElementById("uploadJsonBtn")?.click();
+                showPopup("📂 Upload Settings");
+            }
+        };
+
+        window.addEventListener("keydown", handleHotkeys);
+        return () => window.removeEventListener("keydown", handleHotkeys);
+
+    }, []);
 
 return (
     <div className="dark-page">
@@ -177,6 +235,12 @@ return (
 
             <section className="dark-card control-card">
                 <h2 className="title accent-cyan">Control Panel</h2>
+                {/* POPUP NOTIFICATION */}
+                    {popupMsg && (
+                        <div className="popup-alert">
+                            {popupMsg}
+                        </div>
+                    )}
                 <Control_Panel
                     p1On={p1On} setP1On={setP1On}  
                     tempo={tempo} setTempo={setTempo}
