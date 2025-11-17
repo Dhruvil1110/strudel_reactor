@@ -1,6 +1,16 @@
 ﻿import './App.css';
 import { useEffect, useRef, useState } from "react";
-
+import { StrudelMirror } from "@strudel/codemirror";
+import { evalScope } from "@strudel/core";
+import { drawPianoroll } from "@strudel/draw";
+import { transpiler } from "@strudel/transpiler";
+import {
+    getAudioContext,
+    initAudioOnFirstClick,
+    registerSynthSounds,
+    webaudioOutput,
+} from "@strudel/webaudio";
+import { registerSoundfonts } from "@strudel/soundfonts";
 import { stranger_tune } from './tunes';
 import console_monkey_patch, { getD3Data } from './console-monkey-patch';
 
@@ -11,14 +21,12 @@ import {
     importSettingsFromFile
 } from "./components/Settings";
 
-import { resumeAudio, stopAudio } from "./components/AudioService";
-import { initEditor, globalEditor } from "./components/StrudelEngine";
 
 import Preprocessor_Editor from './components/Preprocessor_Editor';
 import Control_Panel from './components/Control_Panel';
 import Graph from './components/Graph';
 
-
+export let globalEditor = null;
 
 //const handleD3Data = (event) => {
 //    console.log(event.detail);
@@ -71,6 +79,24 @@ import Graph from './components/Graph';
 
 // Export function to process and load text into the Strudel editor
 
+export async function resumeAudio() {
+    initAudioOnFirstClick();
+    const ac = getAudioContext();
+    if (ac && ac.state !== "running") await ac.resume();
+}
+
+export async function stopAudio() {
+    try {
+        globalEditor?.stop?.();
+        globalEditor?.repl?.stop?.();
+        globalEditor?.repl?.scheduler?.stop?.();
+
+        const ac = getAudioContext();
+        if (ac && ac.state !== "suspended") await ac.suspend();
+    } catch (e) {
+        console.error("Stop error:", e);
+    }
+}
 export default function StrudelDemo() {
 
     const hasRun = useRef(false);
@@ -87,14 +113,48 @@ useEffect(() => {
 
     if (hasRun.current) return; // prevent re-running setup
         //document.addEventListener("d3Data", handleD3Data);
-    //console_monkey_patch();
+    console_monkey_patch();
 
-    initEditor(p1On, stranger_tune, processAndLoad, console_monkey_patch);
+   
 
         hasRun.current = true;
         //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
             //init canvas
-            
+
+    const canvas = document.getElementById("roll");
+    canvas.width = canvas.width * 2;
+    canvas.height = canvas.height * 2;
+
+    const ctx = canvas.getContext("2d");
+    const drawTime = [-2, 2];
+
+    globalEditor = new StrudelMirror({
+        defaultOutput: webaudioOutput,
+        getTime: () => getAudioContext().currentTime,
+        transpiler,
+        root: document.getElementById("output-panel"),
+        drawTime,
+        onDraw: (haps, time) =>
+            drawPianoroll({ haps, time, ctx, drawTime, fold: 0 }),
+
+        prebake: async () => {
+            initAudioOnFirstClick();
+            const loadModules = evalScope(
+                import("@strudel/core"),
+                import("@strudel/draw"),
+                import("@strudel/mini"),
+                import("@strudel/tonal"),
+                import("@strudel/webaudio")
+            );
+            await Promise.all([
+                loadModules,
+                registerSynthSounds(),
+                registerSoundfonts(),
+            ]);
+        },
+    });
+
+    processAndLoad(stranger_tune, p1On);
 }, [p1On]);
 
 

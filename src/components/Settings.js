@@ -1,4 +1,4 @@
-import { globalEditor } from "../components/StrudelEngine";
+import { globalEditor } from "../App";
 
 export function processAndLoad(txt, p1On) {
     // Replace every <p1_Radio> tag with an underscore or nothing, depending on whether p1On is false or true.
