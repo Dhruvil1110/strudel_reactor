@@ -28,102 +28,57 @@ import Graph from './components/Graph';
 
 export let globalEditor = null;
 
-//const handleD3Data = (event) => {
-//    console.log(event.detail);
-//};
-
-//export function SetupButtons() {
-
-//    document.getElementById('play').addEventListener('click', () => globalEditor.evaluate());
-//    document.getElementById('stop').addEventListener('click', () => globalEditor.stop());
-//    document.getElementById('process').addEventListener('click', () => {
-//        Proc()
-//    }
-//    )
-//    document.getElementById('process_play').addEventListener('click', () => {
-//        if (globalEditor != null) {
-//            Proc()
-//            globalEditor.evaluate()
-//        }
-//    }
-//    )
-//}
+// Handler for custom D3 data event
+const handleD3Data = (event) => {   
+    console.log(event.detail);
+};
 
 
 
-//export function ProcAndPlay() {
-//    if (globalEditor != null && globalEditor.repl.state.started == true) {
-//        console.log(globalEditor)
-//        Proc()
-//        globalEditor.evaluate();
-//    }
-//}
-
-//export function Proc() {
-
-//    let proc_text = document.getElementById('proc').value
-//    let proc_text_replaced = proc_text.replaceAll('<p1_Radio>', ProcessText);
-//    ProcessText(proc_text);
-//    globalEditor.setCode(proc_text_replaced)
-//}
-
-//export function ProcessText(match, ...args) {
-
-//    let replace = ""
-//    if (document.getElementById('flexRadioDefault2').checked) {
-//        replace = "_"
-//    }
-
-//    return replace
-//}
-
-// Export function to process and load text into the Strudel editor
-
-export async function resumeAudio() {
-    initAudioOnFirstClick();
-    const ac = getAudioContext();
-    if (ac && ac.state !== "running") await ac.resume();
+export async function resumeAudio() { // Ensure audio context is running
+    initAudioOnFirstClick();         // Init on first click
+    const ac = getAudioContext();    // Get audio context
+    if (ac && ac.state !== "running") await ac.resume();  // Resume if not running
 }
 
-export async function stopAudio() {
-    try {
-        globalEditor?.stop?.();
-        globalEditor?.repl?.stop?.();
-        globalEditor?.repl?.scheduler?.stop?.();
-
-        const ac = getAudioContext();
-        if (ac && ac.state !== "suspended") await ac.suspend();
+export async function stopAudio() {   // Stop playback and suspend audio context
+    try {                                    // Try-catch for error handling
+        globalEditor?.stop?.();              // Stop editor evaluation
+        globalEditor?.repl?.stop?.();        // Stop REPL playback
+        globalEditor?.repl?.scheduler?.stop?.();     // Stop scheduler if exists
+         
+        const ac = getAudioContext();        // Get audio context
+        if (ac && ac.state !== "suspended") await ac.suspend();  // Suspend audio context if not already
     } catch (e) {
-        console.error("Stop error:", e);
+        console.error("Stop error:", e);    // Log any errors
     }
 }
-export default function StrudelDemo() {
+export default function StrudelDemo() {   
 
     const hasRun = useRef(false);
 
     // App states: text, playback controls, and mixer settings
-    const [text, setText] = useState(stranger_tune);
-    const [p1On, setP1On] = useState(true);
-    const [tempo, setTempo] = useState(120);
-    const [volume, setVolume] = useState(50);
-    const [reverb, setReverb] = useState(40);
-    const [status, setStatus] = useState("");
+    const [text, setText] = useState(stranger_tune);  // Editor text state
+    const [p1On, setP1On] = useState(true);     // p1 playback control
+    const [tempo, setTempo] = useState(120);    // Default tempo
+    const [volume, setVolume] = useState(50);   // Default volume
+    const [reverb, setReverb] = useState(40);   // Default reverb
+    const [status, setStatus] = useState("");   // Status message state
 
-    // NEW: Notification popup state
-    const [popupMsg, setPopupMsg] = useState("");
+    // Notification popup state
+    const [popupMsg, setPopupMsg] = useState("");  
 
+    // Function to show popup notification
     const showPopup = (msg) => {
-        setPopupMsg(msg);
-        setTimeout(() => setPopupMsg(""), 5000); // auto-hide
+        setPopupMsg(msg);        // Set popup message  
+        setTimeout(() => setPopupMsg(""), 5000);  // Clear after 5 seconds
     };
 
 useEffect(() => {
 
     if (hasRun.current) return; // prevent re-running setup
-        //document.addEventListener("d3Data", handleD3Data);
+    document.addEventListener("d3Data", handleD3Data);   // Listen for custom D3 data events
     console_monkey_patch();
-
-   
 
         hasRun.current = true;
         //Code copied from example: https://codeberg.org/uzu/strudel/src/branch/main/examples/codemirror-repl
@@ -162,57 +117,57 @@ useEffect(() => {
         },
     });
 
-    processAndLoad(stranger_tune, p1On);
-}, [p1On]);
+    processAndLoad(stranger_tune, p1On);  // Initial processing and loading
+}, [p1On]);   // Re-run if p1On changes
 
 useEffect(() => {
 
         const handleHotkeys = (e) => {
 
-            // Space = Play
-            if (e.key === "1") {
-                e.preventDefault();
-                document.getElementById("play")?.click();
-                showPopup("▶ Hotkey 1: Play");
+            // Key 1 to Play song
+            if (e.key === "1") { 
+                e.preventDefault();     // Prevent default action
+                document.getElementById("play")?.click();  // Trigger play button
+                showPopup("Hotkey 1: Play");      // Show popup
             }
 
-            // Shift + Space = Stop
-            if (e.key === "2") {
-                e.preventDefault();
-                document.getElementById("stop")?.click();
-                showPopup("⏹ Hotkey 2: Stopped Playback");
+            // Key 2 to stop song
+            if (e.key === "2") { 
+                e.preventDefault();   
+                document.getElementById("stop")?.click();  // Trigger stop button
+                showPopup("Hotkey 2: Stopped Playback");   // Show popup
             }
 
-            // Enter = Proc & Play
+            // Key 3 to Proc & Play
             if (e.key === "3") {
                 e.preventDefault();
-                document.getElementById("process_play")?.click();
-                showPopup("⚙️ Hotkey 3: Proc & Play");
+                document.getElementById("process_play")?.click();  // Trigger Proc & Play button
+                showPopup("Hotkey 3: Proc & Play");    // Show popup
             }
 
-            // P = Preprocess
+            // P for Preprocess
             if (e.key === "4") {
-                document.getElementById("preprocess")?.click();
-                showPopup("🔧 Hotkey 4: Preprocess");
+                document.getElementById("preprocess")?.click();  // Trigger Preprocess button
+                showPopup("Hotkey 4: Preprocess");   // Show popup
             }
 
-            // D = Download JSON
+            // D for Download JSON
             if (e.key.toLowerCase() === "d") {
                 e.preventDefault();
-                document.getElementById("downloadJsonBtn")?.click();
-                showPopup("💾 Download Settings");
+                document.getElementById("downloadJsonBtn")?.click();  // Trigger download button
+                showPopup("Download Settings");      // Show popup
             }
 
-            // U = Load JSON
+            // U for Load JSON
             if (e.key.toLowerCase() === "u") {
                 e.preventDefault();
-                document.getElementById("uploadJsonBtn")?.click();
-                showPopup("📂 Upload Settings");
+                document.getElementById("uploadJsonBtn")?.click();  // Trigger upload button
+                showPopup("Upload Settings");     // Show popup
             }
         };
 
-        window.addEventListener("keydown", handleHotkeys);
-        return () => window.removeEventListener("keydown", handleHotkeys);
+        window.addEventListener("keydown", handleHotkeys);   // Attach listener
+        return () => window.removeEventListener("keydown", handleHotkeys);   // return cleanup 
 
 }, []);
 
@@ -246,13 +201,13 @@ useEffect(() => {
 return (
     <div className="dark-page">
         <header className="dark-header">
-            <h1>🎧 Strudel Preprocessor Studio</h1>
+            <h1>Strudel Preprocessor Studio</h1>
         </header>
 
         <main className="dark-grid">
             <section className="dark-card editor-card">
                 <h2 className="title accent-blue">Preprocessor Editor</h2>
-                <Preprocessor_Editor value={text} onChange={setText} />
+                <Preprocessor_Editor value={text} onChange={setText} />  
             </section>
 
             <section className="dark-card output-card">
@@ -268,23 +223,23 @@ return (
                             {popupMsg}
                         </div>
                     )}
-                <Control_Panel
+                <Control_Panel  
                     p1On={p1On} setP1On={setP1On}  
                     tempo={tempo} setTempo={onTempoChange}
                     volume={volume} setVolume={setVolume}
                     reverb={reverb} setReverb={setReverb}
-                    preprocess={() => processAndLoad(text, p1On)}  
-                    preprocessAndPlay={async () => { await resumeAudio(); processAndLoad(text, p1On); globalEditor?.evaluate(); setStatus("Playing (proc)"); }}
-                    play={async () => { await resumeAudio(); globalEditor?.evaluate(); setStatus("Playing"); }}
-                    stop={stopAudio}
-                    downloadSettings={() => downloadSettings(tempo, volume, reverb, p1On, text, setStatus)}
-                    importSettingsFromFile={(fileContent) => importSettingsFromFile(fileContent, setTempo, setVolume, setReverb, setP1On, setText, setStatus)}
-                    status={status}
+                    preprocess={() => processAndLoad(text, p1On)}   // Preprocess button handler
+                    preprocessAndPlay={async () => { await resumeAudio(); processAndLoad(text, p1On); globalEditor?.evaluate(); setStatus("Playing (proc)"); }}  // Preprocess & Play button handler
+                    play={async () => { await resumeAudio(); globalEditor?.evaluate(); setStatus("Playing"); }}   // Play button handler
+                    stop={stopAudio}       // Stop button handler
+                    downloadSettings={() => downloadSettings(tempo, volume, reverb, p1On, text, setStatus)}   // Download settings handler
+                    importSettingsFromFile={(fileContent) => importSettingsFromFile(fileContent, setTempo, setVolume, setReverb, setP1On, setText, setStatus)}   // Import settings handler 
+                    status={status}   // Status message display
                 />
             </section>
 
             <section className="dark-card graph-card">
-                <h2 className="title accent-green">D3 Graph</h2>
+                <h2 className="title accent-green">D3 Graph</h2>    
                 <Graph />
             </section>
         </main>

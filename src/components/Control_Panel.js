@@ -1,6 +1,6 @@
 ﻿import { useRef, useState } from "react";
 
-export default function ControlPanel({
+export default function ControlPanel({  // Props from parent component
     p1On, setP1On,
     tempo, setTempo,
     volume, setVolume,
@@ -9,10 +9,10 @@ export default function ControlPanel({
     downloadSettings, importSettingsFromFile,
     status,
 }) {
-    const fileRef = useRef(null);
+    const fileRef = useRef(null);  // Ref for hidden file input
 
     // Effects state
-    const [effects, setEffects] = useState({
+    const [effects, setEffects] = useState({  // Initial effects state
         chorus: false,
         delay: false,
         distortion: false
@@ -22,18 +22,18 @@ export default function ControlPanel({
     const onChooseFile = () => fileRef.current?.click();
 
     // Triggered when user selects a JSON file
-    const onFileSelected = (e) => {
-        const f = e.target.files?.[0];
-        if (!f) return;
-        const reader = new FileReader();
-        reader.onload = () => importSettingsFromFile(String(reader.result || ""));
-        reader.readAsText(f, "utf-8");
-        e.target.value = ""; 
+    const onFileSelected = (e) => {     // File selection handler
+        const f = e.target.files?.[0];  // Get the selected file and ensure it exists
+        if (!f) return;                 // Exit if no file selected
+        const reader = new FileReader();   // Create a FileReader to read the file
+        reader.onload = () => importSettingsFromFile(String(reader.result || ""));  // On load, import settings from file content
+        reader.readAsText(f, "utf-8");   // Read file as text
+        e.target.value = "";   // Reset input value to allow re-uploading the same file
     };
 
     // Toggle effect on/off handler
     const toggleEffect = (name) => {
-        setEffects(prev => ({ ...prev, [name]: !prev[name] }));
+        setEffects(prev => ({ ...prev, [name]: !prev[name] }));   // Toggle the specified effect
     };
 
     return (
@@ -76,7 +76,7 @@ export default function ControlPanel({
                     <input
                         type="number"
                         value={tempo}
-                        onChange={(e) => setTempo(Number(e.target.value))}
+                        onChange={(e) => setTempo(Number(e.target.value))}  // Tempo change handler
                     /> BPM
                 </div>
             </div>
