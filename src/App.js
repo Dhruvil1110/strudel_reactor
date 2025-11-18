@@ -214,7 +214,34 @@ useEffect(() => {
         window.addEventListener("keydown", handleHotkeys);
         return () => window.removeEventListener("keydown", handleHotkeys);
 
-    }, []);
+}, []);
+
+    // Function tempo 
+    const applyTempo = (code, bpm) => {
+        // Regex to find existing tempo line
+        const tempoLineRegex = /^setcps\(.*?\)/m;
+        // Create new tempo line
+        const newLine = `setcps(${bpm}/60/4)`;
+        // If tempo line exists, replace it
+        if (tempoLineRegex.test(code)) {
+            return code.replace(tempoLineRegex, newLine);  // Replace existing line and return
+        }
+        
+        return `${newLine}\n${code}`; // Else, add it at the top
+    };
+
+    // Handler for tempo changes
+    const onTempoChange = async (bpm) => {
+        setTempo(bpm);   // Update state
+
+        let newScript = applyTempo(text, bpm); // Modify script
+        setText(newScript);    // Update editor text
+
+        await resumeAudio();        // Ensure audio context is active
+        processAndLoad(newScript, p1On);   // Reprocess with new tempo
+        globalEditor?.evaluate();
+        setStatus("Tempo Updated & Playing");  // Update status
+    };
 
 return (
     <div className="dark-page">
@@ -243,7 +270,7 @@ return (
                     )}
                 <Control_Panel
                     p1On={p1On} setP1On={setP1On}  
-                    tempo={tempo} setTempo={setTempo}
+                    tempo={tempo} setTempo={onTempoChange}
                     volume={volume} setVolume={setVolume}
                     reverb={reverb} setReverb={setReverb}
                     preprocess={() => processAndLoad(text, p1On)}  
