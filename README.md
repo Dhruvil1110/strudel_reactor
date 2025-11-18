@@ -1,70 +1,140 @@
-# Getting Started with Create React App
+# Strudel Preprocessor Studio - README
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+This project is a live-coding interface and Strudel music preprocessor built on React.  
+Users can modify Strudel code, preprocess it, play it, change settings, import and export configuration, and use a piano-roll canvas and D3 graph to visualize activity.
 
-In the project directory, you can run:
+The interface includes:
+- Preprocessor Editor  
+- Strudel REPL Output  
+- Control Panel (Playback, Tempo, Mixing, Effects, Settings)  
+- D3 Graph Visualizer  
 
-### `npm start`
+# 1. Preprocessor Editor
+The Preprocessor Editor is where users write and modify Strudel code.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Features
+- Editable textarea bound to React state.
+- The code is updated in real time, but it doesn't run until it is preprocessed or played back.
+- Recognizes <p1_Radio> tags in order to perform conditional playback.
+- Integrated with processAndLoad().
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Behavior
+- Text is controlled via props.
+- Depending on the p1 ON/HUSH state, preprocessing replaces an underscore or empty text for <p1_Radio>.
 
-### `npm test`
+# 2. Strudel REPL Output
+Rendered in the element with ID output-panel.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Purpose
+- Displays processed Strudel output.
+- Shows real-time evaluation logs.
+- The piano-roll visualization is created via StrudelMirror's rendering pipeline using the hidden canvas id="roll". 
 
-### `npm run build`
+# 3. Control Panel
+Contains all user interactions for playback, tempo, mixing, effects, and settings.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 3.1 Playback Controls
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- p1: ON / p1: HUSH - Toggles whether <p1_Radio> sections in code are active. 
+- Preprocess - Processes the script without playback. 
+- Proc & Play - Preprocesses and automatically starts playback. 
+- Play - Plays the current code without preprocessing. 
+- Stop - Stops Strudel playback and suspends audio context. 
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Notes
 
-### `npm run eject`
+- Make use of the StrudelMirror.evaluate() in order to playback.
+- .stop() and audio context suspension are used to stop audio.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 3.2 Tempo Control
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- The setcps(bpm/60/4) line in the script is rewritten when the BPM is changed.
+- The project automatically reprocesses and plays after the update.
+- Ensures audio context is resumed before playback.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 3.3 Mixing Controls
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Volume: Sets stored volume value. 
+- Reverb Intensity: Sets stored reverb value. 
 
-## Learn More
+These values are exported/imported with settings.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 3.4 Effects Section
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Three available toggles:
+- Chorus  
+- Delay  
+- Distortion  
 
-### Code Splitting
+These values exist only in component state and are not applied to audio output.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 3.5 Settings (Import/Export)
 
-### Analyzing the Bundle Size
+### Download JSON
+Exports:
+- tempo  
+- volume  
+- reverb  
+- p1On state  
+- full text from Preprocessor Editor  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Upload JSON
+Restores:
+- tempo  
+- volume  
+- reverb  
+- p1On  
+- Strudel code  
+- Automatically loads script into Strudel engine  
 
-### Making a Progressive Web App
+# 4. Hotkeys  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- 1: Play
+- 2: Stop 
+- 3: Proc & Play 
+- 4: Preprocess 
+- D: Download JSON 
+- U: Upload JSON 
 
-### Advanced Configuration
+- For five seconds, a popup window appears on the screen when each hotkey triggers the corresponding button click.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+# 5. D3 Graph  
 
-### Deployment
+### Features
+- Renders axes with a dark theme (0–50 X, 0–30 Y).
+- Redraws and clears the component mount.
+- Subscribes to special d3Data events that the patched console generates.
+- Provides a container for real-time visualization.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Current Behavior
+- Axes are accurately rendered.
+- This version does not have real-time musical data graphing.
 
-### `npm run build` fails to minify
+# 6. Usage Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Audio Initialization
+
+Audio is blocked by browsers until a user interacts with them.  
+To enable audio playback, the system make use of resumeAudio() and initAudioOnFirstClick().
+
+### Tempo Editing
+Tempo modifications immediately re-run preprocessing and playback after making direct changes to the script text.
+
+### Volume / Reverb / Effects
+These values are stored in JSON but not linked to Strudel audio engine.  
+They are UI only controls.
+
+### D3 Graph Limitations
+At the moment, only axes are shown on the graph.  
+Strudel values must be passed on via patched console events in order to plot.
+
+### Hidden Piano Roll
+The canvas id="roll" is intentionally hidden and rendered only by StrudelMirror.
+
+
+# 7. Demonstration Video
+
+Link:  https://1drv.ms/v/c/90d5112857ddc254/ETIphEQTZmRCsTJZ_2D1pCwBQJzXDAdC1WvA9NS_lz_zsQ?e=AdypbJ
+

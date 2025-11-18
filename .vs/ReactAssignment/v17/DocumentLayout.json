@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{1C538C04-AF09-44AC-9272-6DDEAA808F25}|ReactAssignment.esproj|c:\\users\\dtpat\\onedrive\\desktop\\web tech\\assingment\\strudel_reactor\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{1C538C04-AF09-44AC-9272-6DDEAA808F25}|ReactAssignment.esproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1C538C04-AF09-44AC-9272-6DDEAA808F25}|ReactAssignment.esproj|c:\\users\\dtpat\\onedrive\\desktop\\web tech\\assingment\\strudel_reactor\\src\\components\\graph.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{1C538C04-AF09-44AC-9272-6DDEAA808F25}|ReactAssignment.esproj|solutionrelative:src\\components\\graph.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{1C538C04-AF09-44AC-9272-6DDEAA808F25}|ReactAssignment.esproj|c:\\users\\dtpat\\onedrive\\desktop\\web tech\\assingment\\strudel_reactor\\src\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{1C538C04-AF09-44AC-9272-6DDEAA808F25}|ReactAssignment.esproj|solutionrelative:src\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
@@ -18,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -26,29 +34,53 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Control_Panel.js",
-              "DocumentMoniker": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\components\\Control_Panel.js",
-              "RelativeDocumentMoniker": "src\\components\\Control_Panel.js",
-              "ToolTip": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\components\\Control_Panel.js",
-              "RelativeToolTip": "src\\components\\Control_Panel.js",
-              "ViewState": "AgIAAD4AAAAAAAAAAAAAwKEAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-18T04:33:56.814Z",
+              "DocumentIndex": 0,
+              "Title": "README.md",
+              "DocumentMoniker": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\README.md",
+              "RelativeDocumentMoniker": "README.md",
+              "ToolTip": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\README.md",
+              "RelativeToolTip": "README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-11-18T08:12:07.974Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
+              "Title": "Graph.js",
+              "DocumentMoniker": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\components\\Graph.js",
+              "RelativeDocumentMoniker": "src\\components\\Graph.js",
+              "ToolTip": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\components\\Graph.js",
+              "RelativeToolTip": "src\\components\\Graph.js",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABQAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-11-18T06:32:54.858Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "App.js",
               "DocumentMoniker": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\App.js",
               "RelativeDocumentMoniker": "src\\App.js",
               "ToolTip": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\App.js",
               "RelativeToolTip": "src\\App.js",
-              "ViewState": "AgIAAAEBAAAAAAAAAAAmwNoAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAAAE0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-11-18T04:33:46.425Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-18T04:33:46.425Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Control_Panel.js",
+              "DocumentMoniker": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\components\\Control_Panel.js",
+              "RelativeDocumentMoniker": "src\\components\\Control_Panel.js",
+              "ToolTip": "C:\\Users\\dtpat\\OneDrive\\Desktop\\Web Tech\\Assingment\\strudel_reactor\\src\\components\\Control_Panel.js",
+              "RelativeToolTip": "src\\components\\Control_Panel.js",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAAAJgAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-11-18T04:33:56.814Z"
             }
           ]
         }
